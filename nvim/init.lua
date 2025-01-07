@@ -110,6 +110,7 @@ require("lazydev").setup {}
 lspconfig.gopls.setup {}
 lspconfig.rust_analyzer.setup {}
 lspconfig.lua_ls.setup {}
+lspconfig.clangd.setup {}
 
 --GitSigns---------------------------------------------------------------------
 require("gitsigns").setup {}
