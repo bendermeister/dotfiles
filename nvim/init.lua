@@ -24,7 +24,7 @@ vim.opt.undofile = true
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
-vim.opt.termguicolors = true
+--vim.opt.termguicolors = true
 
 vim.opt.scrolloff = 8
 vim.opt.signcolumn = "yes"
@@ -37,14 +37,19 @@ vim.cmd("highlight Normal ctermbg=NONE guibg=NON")
 require "paq" {
     "savq/paq-nvim",    -- Let Paq manage itself
 
-    "rktjmp/lush.nvim", -- required for bluloco.nvim
-    "uloco/bluloco.nvim",
+    "rose-pine/neovim",
 
     "nvim-lualine/lualine.nvim",
 
+    "SCJangra/table-nvim",
+
     "nvim-treesitter/nvim-treesitter",
 
-    "nvim-lua/plenary.nvim", -- required for telescope
+    -- Git stuff
+    "NeogitOrg/neogit",
+    "sindrets/diffview.nvim",
+
+    "nvim-lua/plenary.nvim", -- required for telescope, neogit
     "nvim-telescope/telescope.nvim",
 
     "stevearc/oil.nvim", -- dired for non saints
@@ -65,16 +70,83 @@ require "paq" {
 }
 
 --Theme------------------------------------------------------------------------
--- Bluloco colorscheme
-require("bluloco").setup({
-    style       = "light", -- "auto" | "dark" | "light"
-    transparent = false,
-    italics     = true,
-    terminal    = vim.fn.has("gui_running") == 1, -- bluoco colors are enabled in gui terminals per default.
-    guicursor   = true,
-})
-vim.cmd('colorscheme bluloco')
+-- RosePine colorscheme
+require("rose-pine").setup({
+    variant = "dawn", -- auto, main, moon, or dawn
+    dark_variant = "main", -- main, moon, or dawn
+    dim_inactive_windows = false,
+    extend_background_behind_borders = true,
 
+    enable = {
+        terminal = true,
+        legacy_highlights = true, -- Improve compatibility for previous versions of Neovim
+        migrations = true, -- Handle deprecated options automatically
+    },
+
+    styles = {
+        bold = true,
+        italic = true,
+        transparency = false,
+    },
+
+    groups = {
+        border = "muted",
+        link = "iris",
+        panel = "surface",
+
+        error = "love",
+        hint = "iris",
+        info = "foam",
+        note = "pine",
+        todo = "rose",
+        warn = "gold",
+
+        git_add = "foam",
+        git_change = "rose",
+        git_delete = "love",
+        git_dirty = "rose",
+        git_ignore = "muted",
+        git_merge = "iris",
+        git_rename = "pine",
+        git_stage = "iris",
+        git_text = "rose",
+        git_untracked = "subtle",
+
+        h1 = "iris",
+        h2 = "foam",
+        h3 = "rose",
+        h4 = "gold",
+        h5 = "pine",
+        h6 = "foam",
+    },
+
+    palette = {
+        -- Override the builtin palette per variant
+        -- moon = {
+        --     base = '#18191a',
+        --     overlay = '#363738',
+        -- },
+    },
+
+    highlight_groups = {
+        -- Comment = { fg = "foam" },
+        -- VertSplit = { fg = "muted", bg = "muted" },
+    },
+
+    before_highlight = function(group, highlight, palette)
+        -- Disable all undercurls
+        -- if highlight.undercurl then
+        --     highlight.undercurl = false
+        -- end
+        --
+        -- Change palette colour
+        -- if highlight.fg == palette.pine then
+        --     highlight.fg = palette.foam
+        -- end
+    end,
+})
+
+vim.cmd("colorscheme rose-pine")
 
 --Modeline---------------------------------------------------------------------
 -- TODO: customize lualine a bit
@@ -84,9 +156,12 @@ require("lualine").setup({
     }
 })
 
+--Markdown-Table----------------------------------------------------------------
+require("table-nvim").setup {}
+
 --TreeSitter--------------------------------------------------------------------
 require 'nvim-treesitter.configs'.setup {
-    ensure_installed = { "c", "ledger", "rust", "markdown", "lua", "sql", "markdown_inline", "go", "latex", "toml" },
+    ensure_installed = { "c", "yaml", "ledger", "rust", "markdown", "lua", "sql", "markdown_inline", "go", "latex", "toml" },
     sync_install = false, -- disable synchroise download of parsers
     auto_install = false, -- don't do anything without my permission
     ignore_install = {},
@@ -100,6 +175,10 @@ require 'nvim-treesitter.configs'.setup {
 
 --Telescope--------------------------------------------------------------------
 require("telescope").setup {}
+
+--NeoGit-----------------------------------------------------------------------
+require("neogit").setup({})
+local neogit = require("neogit")
 
 --Oil--------------------------------------------------------------------------
 require("oil").setup {}
@@ -119,16 +198,6 @@ require("gitsigns").setup {}
 local cmp = require("cmp")
 
 cmp.setup({
-    snippet = {
-        -- REQUIRED - you must specify a snippet engine
-        expand = function(args)
-            vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-            -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-            -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
-            -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
-            -- vim.snippet.expand(args.body) -- For native neovim snippets (Neovim v0.10+)
-        end,
-    },
     window = {
         -- completion = cmp.config.window.bordered(),
         -- documentation = cmp.config.window.bordered(),
@@ -143,10 +212,10 @@ cmp.setup({
         ['<C-e>'] = cmp.mapping.abort(),
     }),
     sources = cmp.config.sources(
-        {{ name = 'nvim_lsp' }},
-        {{ name = 'path'}},
-        {{ name = 'buffer' },
-    })
+        { { name = 'nvim_lsp' } },
+        { { name = 'path' } },
+        { { name = 'buffer' },
+        })
 })
 
 --Comments---------------------------------------------------------------------
@@ -177,18 +246,18 @@ map("n", "<leader>tt", ":FloatermToggle<CR>")
 map("n", "<leader>.", telescope.find_files)
 map("n", "<leader>pf", telescope.git_files)
 
---Grep
-map("n", "<leader>lg", telescope.live_grep)
-
 --Comment
 map("n", "<leader>cc", ":CommentToggle<CR>")
 map("v", "<leader>cc", ":CommentToggle<CR>")
 
+-- Git
+--map("n", "<leader>gs", neogit.open({"commit"}))
+
 --LspNavigation
-map("n", "grr", vim.lsp.buf.references)
-map("n", "grn", vim.lsp.buf.rename)
-map("n", "gra", vim.lsp.buf.code_action)
-map("n", "grf", vim.lsp.buf.format)
+map("n", "lrr", vim.lsp.buf.references)
+map("n", "lrn", vim.lsp.buf.rename)
+map("n", "lra", vim.lsp.buf.code_action)
+map("n", "lrf", vim.lsp.buf.format)
 map("n", "K", vim.lsp.buf.hover)
 
 -- Move lines Up and Down
