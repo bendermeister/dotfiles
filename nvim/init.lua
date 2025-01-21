@@ -24,12 +24,12 @@ vim.opt.undofile = true
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
---vim.opt.termguicolors = true
+vim.opt.termguicolors = true
 
 vim.opt.scrolloff = 8
 vim.opt.signcolumn = "yes"
 vim.opt.updatetime = 1
-vim.opt.colorcolumn = "80"
+--vim.opt.colorcolumn = "80"
 
 vim.cmd("highlight Normal ctermbg=NONE guibg=NON")
 
@@ -67,6 +67,8 @@ require "paq" {
     "hrsh7th/cmp-path",
     "hrsh7th/cmp-cmdline",
     "hrsh7th/nvim-cmp",
+
+    "mfussenegger/nvim-dap",
 }
 
 --Theme------------------------------------------------------------------------
@@ -161,7 +163,7 @@ require("table-nvim").setup {}
 
 --TreeSitter--------------------------------------------------------------------
 require 'nvim-treesitter.configs'.setup {
-    ensure_installed = { "c", "yaml", "ledger", "rust", "markdown", "lua", "sql", "markdown_inline", "go", "latex", "toml" },
+    ensure_installed = { "c", "yaml", "ledger", "rust", "markdown", "lua", "sql", "markdown_inline", "go", "latex", "toml", "html", "javascript" },
     sync_install = false, -- disable synchroise download of parsers
     auto_install = false, -- don't do anything without my permission
     ignore_install = {},
@@ -259,6 +261,7 @@ map("n", "lrn", vim.lsp.buf.rename)
 map("n", "lra", vim.lsp.buf.code_action)
 map("n", "lrf", vim.lsp.buf.format)
 map("n", "K", vim.lsp.buf.hover)
+map("n", "gd", vim.lsp.buf.definition)
 
 -- Move lines Up and Down
 map("v", "K", ":m '<-2<CR>gv=gv") -- move line up(v)
